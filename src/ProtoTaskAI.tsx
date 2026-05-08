@@ -92,7 +92,7 @@ function buildFallback() {
   };
 }
 
-async function callClaude(system, messages, mcpServers = [], maxTokens = 5000) {
+async function callClaude(system: any, messages: any, mcpServers: any[] = [], maxTokens = 5000, key = apiKey) {
   const body: any = {
     model: 'claude-sonnet-4-20250514',
     max_tokens: maxTokens,
@@ -102,7 +102,7 @@ async function callClaude(system, messages, mcpServers = [], maxTokens = 5000) {
   if (mcpServers.length) body.mcp_servers = mcpServers;
   const res = await fetch("/api/anthropic/v1/messages", {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {"Content-Type": "application/json", "x-api-key": apiKey, "anthropic-version": "2023-06-01"},
     body: JSON.stringify(body),
   });
   if (!res.ok) throw new Error(`API ${res.status}: ${await res.text()}`);
@@ -126,6 +126,7 @@ export default function ProtoTaskAI() {
   const [error, setError] = useState(null);
   const [created, setCreated] = useState([]);
   const [expanded, setExpanded] = useState({});
+  const [apiKey, setApiKey] = useState("");
   const [dragging, setDragging] = useState(false);
   const [comments, setComments] = useState({
     epic: '',
@@ -597,6 +598,16 @@ A tarefa de Frontend deve cobrir o layout INTEIRO (não divida por seção). Sej
       </div>
 
       {/* Botão */}
+      <div style={{ marginBottom:20 }}>
+  <label style={{ fontSize:9, color:"#6366f1", letterSpacing:2, textTransform:"uppercase", display:"block", marginBottom:6 }}>Anthropic API Key</label>
+  <input
+    type="password"
+    value={apiKey}
+    onChange={e => setApiKey(e.target.value)}
+    placeholder="sk-ant-..."
+    style={{ width:"100%", boxSizing:"border-box", background:"#0c0c1a", border:"1px solid #1e1e30", borderRadius:6, padding:"9px 13px", color:"#e2e2e8", fontSize:11, fontFamily:"inherit", outline:"none" }}
+  />
+</div>
       <button
         onClick={run}
         disabled={isRunning || !pdfFile || !boardName}
