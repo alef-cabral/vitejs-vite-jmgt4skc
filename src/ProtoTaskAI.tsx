@@ -45,7 +45,7 @@ function safeParseJSON(raw) {
 function fileToBase64(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.onload = () => resolve(reader.result.split(',')[1]);
+    reader.onload = () => resolve((reader.result as string).split(',')[1]);
     reader.onerror = () => reject(new Error('Falha ao ler o arquivo.'));
     reader.readAsDataURL(file);
   });
@@ -93,7 +93,7 @@ function buildFallback() {
 }
 
 async function callClaude(system, messages, mcpServers = [], maxTokens = 5000) {
-  const body = {
+  const body: any = {
     model: 'claude-sonnet-4-20250514',
     max_tokens: maxTokens,
     system,
@@ -132,7 +132,7 @@ export default function ProtoTaskAI() {
     frontend: '',
     backend: '',
   });
-  const fileRef = useRef();
+  const fileRef = useRef<HTMLInputElement>(null);
 
   const updateComment = (key, val) =>
     setComments((p) => ({ ...p, [key]: val }));
