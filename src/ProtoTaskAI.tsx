@@ -92,7 +92,7 @@ function buildFallback() {
   };
 }
 
-async function callClaude(system: any, messages: any, mcpServers: any[] = [], maxTokens = 5000, key = apiKey) {
+async function callClaude(system: any, messages: any, mcpServers: any[] = [], maxTokens = 5000, key = "") {
   const body: any = {
     model: 'claude-sonnet-4-20250514',
     max_tokens: maxTokens,
@@ -102,7 +102,7 @@ async function callClaude(system: any, messages: any, mcpServers: any[] = [], ma
   if (mcpServers.length) body.mcp_servers = mcpServers;
   const res = await fetch("/api/anthropic/v1/messages", {
     method: 'POST',
-    headers: {"Content-Type": "application/json", "x-api-key": apiKey, "anthropic-version": "2023-06-01"},
+  headers: {"Content-Type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01"},
     body: JSON.stringify(body),
   });
   if (!res.ok) throw new Error(`API ${res.status}: ${await res.text()}`);
@@ -188,7 +188,7 @@ export default function ProtoTaskAI() {
       );
       addLog('🔍 Analisando layout visualmente...', 'info');
 
-      const analysisData = await callClaude(
+      const analysisData = await callClaude (system, messages, mcpServers, maxTokens, apiKey) (
         'Você é especialista em análise de layouts de interface. Analise visualmente o PDF e descreva com detalhe todos os elementos de UI: header, navegação, banners, seções, tipografia, imagens, cards, formulários, botões, footer, cores, integrações externas visíveis (redes sociais, mapas, feeds etc). Indique claramente se o layout exige integrações de backend como APIs de conteúdo, feeds sociais, formulários ou autenticação.',
         [
           {
@@ -222,7 +222,7 @@ export default function ProtoTaskAI() {
       setStatus(STATUS.GENERATING);
       addLog('🧠 Gerando tarefas com base no layout...', 'info');
 
-      const taskData = await callClaude(
+      const taskData = await callClaude (system, messages, mcpServers, maxTokens, apiKey) (
         `Você é um Tech Lead sênior. Analise a descrição do layout e gere EXATAMENTE:
 - 1 tarefa de Frontend cobrindo o desenvolvimento completo do layout
 - 1 tarefa de Backend SOMENTE se o layout realmente exigir APIs, integrações ou dados dinâmicos; caso contrário, omita o campo "backend"
@@ -265,7 +265,7 @@ A tarefa de Frontend deve cobrir o layout INTEIRO (não divida por seção). Sej
       setStatus(STATUS.CREATING_MONDAY);
       addLog('📋 Buscando board no Monday...', 'info');
 
-      const boardData = await callClaude(
+      const boardData = await callClaude (system, messages, mcpServers, maxTokens, apiKey) (
         'Gerencie o Monday.com via MCP. Retorne SOMENTE JSON.',
         [
           {
@@ -288,7 +288,7 @@ A tarefa de Frontend deve cobrir o layout INTEIRO (não divida por seção). Sej
 
       // Epic
       addLog('🚀 Criando Epic no Monday...', 'info');
-      const epicRes = await callClaude(
+      const epicRes = await callClaude (system, messages, mcpServers, maxTokens, apiKey) (
         'Gerencie o Monday.com via MCP.',
         [
           {
@@ -339,7 +339,7 @@ A tarefa de Frontend deve cobrir o layout INTEIRO (não divida por seção). Sej
             ? `Use create_item do Monday MCP: boardId=${SUBITEM_BOARD_ID}, parentItemId=${epicId}, name="[${task.type}] ${task.title}", columnValues=${colValues}. Retorne {"itemId":"string"}`
             : `Use create_item do Monday MCP: boardId=${boardId}, name="[${task.type}] ${task.title}", columnValues={}. Retorne {"itemId":"string"}`;
 
-          const r = await callClaude(
+          const r = await callClaude (system, messages, mcpServers, maxTokens, apiKey) (
             'Gerencie o Monday.com via MCP. Execute create_item com os parâmetros exatos.',
             [{ role: 'user', content: p }],
             [{ type: 'url', url: MONDAY_MCP, name: 'monday' }],
@@ -359,7 +359,7 @@ A tarefa de Frontend deve cobrir o layout INTEIRO (não divida por seção). Sej
           // 2. Garantir coluna Texto preenchida via change_item_column_values
           if (newItemId) {
             try {
-              await callClaude(
+              await callClaude (system, messages, mcpServers, maxTokens, apiKey) (
                 'Gerencie o Monday.com via MCP. Execute change_item_column_values com os parâmetros exatos.',
                 [
                   {
