@@ -1,6 +1,0 @@
-[[redirects]]
-  from = "/api/anthropic/*"
-  to = "https://api.anthropic.com/:splat"
-  status = 200
-  force = true
-  headers = {X-From = "Netlify"}
