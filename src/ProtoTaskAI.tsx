@@ -100,7 +100,7 @@ async function callClaude(system, messages, mcpServers = [], maxTokens = 5000) {
     messages,
   };
   if (mcpServers.length) body.mcp_servers = mcpServers;
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
+  const res = await fetch("/api/anthropic/v1/messages", {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
